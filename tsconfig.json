@@ -13,8 +13,7 @@
         ],
     },
     "include": [
-        "src/**/*",
-        "__tests__/service.spec.ts"
+        "src/**/*"
     ],
     "exclude": [
         "node_modules",

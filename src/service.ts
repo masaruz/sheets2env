@@ -4,17 +4,17 @@ import { Credentials, OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
 import { createInterface } from 'readline'
 import { SCOPE, TOKEN_PATH } from './constant'
-import { IArg, ICredentials, IJson, ISheetRow } from './model'
+import { IArg, ICredentials, ISheetRow, IInstalledCredentials } from './model'
 /**
  * Read value from process env and decode it
  * @param key to specify value in process env
  */
-export function decodeFromEnv(key: string): IJson {
+export function decodeFromEnv(key: string): any {
     const encoded = process.env[key]
     if (!encoded) {
         throw new Error(`Please define ${key} in .env`)
     }
-    let result: IJson
+    let result: any
     try {
         result = JSON.parse(Buffer.from(encoded, 'base64').toString())
     } catch (e) {
@@ -23,23 +23,37 @@ export function decodeFromEnv(key: string): IJson {
     return result
 }
 
+export function createCredentials(client_secret: string, client_id: string, redirect_uris: string[]): ICredentials {
+    return {
+        installed: {
+            client_secret,
+            client_id,
+            redirect_uris,
+        } as IInstalledCredentials
+    } as ICredentials
+}
+
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
  * given callback function.
+ * @param creds google sheet credential might be service account
+ * @param token google token when authorize success
+ * @param callback after create oauth2 client and set token
  */
-export function authorize(creds: ICredentials, token: Credentials, callback: (oAuth2: OAuth2Client) => void): void {
+export async function authorize(creds: ICredentials, token: Credentials): Promise<OAuth2Client> {
     const {
         client_secret,
         client_id,
         redirect_uris } = creds.installed
     const oAuth2Client = new google.auth.OAuth2(
         client_id, client_secret, redirect_uris[0])
-
     if (token) {
         oAuth2Client.setCredentials(token)
-        callback(oAuth2Client)
+        return new Promise(resolve => {
+            resolve(oAuth2Client)
+        })
     } else {
-        getNewToken(oAuth2Client, callback)
+        return getNewToken(oAuth2Client)
     }
 }
 
@@ -49,30 +63,32 @@ export function authorize(creds: ICredentials, token: Credentials, callback: (oA
  * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
  * @param {getEventsCallback} callback The callback for the authorized client.
  */
-export function getNewToken(oAuth2: OAuth2Client, callback: (oAuth2: OAuth2Client) => void): void {
+export async function getNewToken(oAuth2: OAuth2Client): Promise<OAuth2Client> {
     const authUrl = oAuth2.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPE,
     })
     // tslint:disable-next-line
-    console.log(`Authorize this app by visiting this url: ${authUrl}`)
+    console.log(green(`Authorize this app by visiting this url: ${yellow.underline(authUrl)}`))
     const rl = createInterface({
         input: process.stdin,
         output: process.stdout,
     })
-    rl.question('Enter the code from that page here: ', async code => {
-        rl.close()
-        try {
-            const response = await oAuth2.getToken(code)
-            const token = response.tokens
-            oAuth2.setCredentials(token)
-            await fs.writeFile(TOKEN_PATH, JSON.stringify(token))
-            // tslint:disable-next-line
-            console.log(green(`Token stored to %c${TOKEN_PATH}`))
-            callback(oAuth2)
-        } catch (e) {
-            throw e
-        }
+    return new Promise(async (resolve, rejects) => {
+        rl.question('Enter the code from that page here: ', async code => {
+            rl.close()
+            try {
+                const response = await oAuth2.getToken(code)
+                const token = response.tokens
+                oAuth2.setCredentials(token)
+                await fs.writeFile(TOKEN_PATH, JSON.stringify(token))
+                // tslint:disable-next-line
+                console.log(green(`Token stored to %c${TOKEN_PATH}`))
+                resolve(oAuth2)
+            } catch (e) {
+                rejects(e)
+            }
+        })
     })
 }
 
