@@ -57,15 +57,6 @@ function authorize(credentials, callback) {
     if (GOOGLE_ACCOUNT_TOKEN) {
         oAuth2Client.setCredentials(GOOGLE_ACCOUNT_TOKEN)
         callback(oAuth2Client)
-        // } else if (TOKEN_PATH) {
-        //     fs.readFile(TOKEN_PATH, (err, token) => {
-        //         if (err) return getNewToken(oAuth2Client, callback)
-        //         oAuth2Client.setCredentials(JSON.parse(token))
-        //         callback(oAuth2Client)
-        //     })
-        //     // Otherwise popup google consent dialog to request permission
-        //     // Generate TOKEN_PATH file name when successful authorized
-        // }
     } else {
         getNewToken(oAuth2Client, callback)
     }
