@@ -17,3 +17,13 @@ interface IJsonItem {
     smps: string[];
     data: string[];
 }
+
+export interface ISheetRow {
+    key: string;
+    value: string
+}
+
+export interface IArg {
+    flag: string;
+    name: string;
+}

@@ -5,11 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "lint": "tslint -p tsconfig.json -c tslint.json"
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "lint-fix": "tslint -p tsconfig.json -c tslint.json --fix"
   },
   "author": "Stamp",
   "license": "ISC",
   "dependencies": {
+    "colors": "^1.4.0",
+    "google-auth-library": "^5.5.1",
     "googleapis": "^44.0.0"
   },
   "devDependencies": {
