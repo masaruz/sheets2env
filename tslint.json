@@ -2,5 +2,18 @@
     "extends": [
         "tslint:latest",
         "tslint-config-prettier"
-    ]
+    ],
+    "rules": {
+        "semicolon": [
+            true,
+            "never"
+        ]
+    },
+    "linterOptions": {
+        "exclude": [
+            "dist/**/*",
+            "node_modules/**/*",
+            "__tests__/**/*"
+        ]
+    }
 }

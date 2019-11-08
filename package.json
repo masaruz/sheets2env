@@ -1,10 +1,12 @@
 {
   "name": "env-from-sheet",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Read google sheet and create .env file from sheet column and tab",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "test": "jest",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "lint-fix": "tslint -p tsconfig.json -c tslint.json --fix"
   },
@@ -21,6 +23,7 @@
     "@types/node": "^12.12.6",
     "jest": "^24.9.0",
     "ts-jest": "^24.1.0",
+    "ts-node": "^8.4.1",
     "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.7.2"

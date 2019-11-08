@@ -102,5 +102,9 @@ public/
 .env
 .env.*
 
+# credentials
+google.token
+secret.ts
+
 
 # End of https://www.gitignore.io/api/node

@@ -1,33 +1,16 @@
-import { decodeFromEnv, createDotEnv } from '../src/service'
+import { createDotEnv } from '../src/service'
 import { ISheetRow } from '../src/model'
 import { join } from 'path'
 import { readFileSync, unlinkSync } from 'fs'
 
-describe('decode from env', () => {
-    test('throw errro when value not found', async () => {
-        expect(() => decodeFromEnv('')).toThrow()
-    })
-
-    test('return object when value found', () => {
-        process.env['KEY'] = 'eyJuYW1lIjoic3RhbXAifQ==' // {"name":"stamp"}
-        const obj = decodeFromEnv('KEY')
-        expect(obj.name).toBe('stamp')
-    })
-
-    test('throw errro when value is not an object', () => {
-        process.env['KEY'] = 'aGVsbG8=' // hello
-        expect(() => decodeFromEnv('KEY')).toThrow()
-    })
-})
-
 describe('create dot env', () => {
-
     const envpath = join(__dirname, '.env')
 
     afterEach(() => {
         // Incase of some tests don't create .env
         try {
             unlinkSync(envpath)
+            // tslint:disable-next-line
         } catch (e) { }
     })
 
