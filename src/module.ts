@@ -1,5 +1,4 @@
 import { yellow } from 'colors'
-import { readFileSync } from 'fs'
 import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
 import { IConfig, ICredentials, IToken } from './model'
