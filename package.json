@@ -1,6 +1,6 @@
 {
   "name": "env-from-sheet",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Read google sheet and create .env file from sheet column and tab",
   "main": "./dist/index.js",
   "scripts": {
