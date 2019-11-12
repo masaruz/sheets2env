@@ -2,27 +2,34 @@ import { yellow } from 'colors'
 import { readFileSync } from 'fs'
 import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
-import { IConfig, ICredentials } from './model'
+import { IConfig, ICredentials, IToken } from './model'
 import { createDotEnv, getNewToken } from './service'
 
 export class SheetEnv {
     private oAuth2Client: OAuth2Client
     private credentials: ICredentials
     private config: IConfig
-    private tokenPath: string
+    private token: IToken
     /**
      * Set credentials to this class
      * @param credentials from google service account
      * @param config json file to define projects and sheet id
-     * @param tokenPath path of token json file when successfully autorized with google
+     * @param token get from google authorization
      */
-    constructor(credentials: ICredentials, config: IConfig, tokenPath: string = '') {
+    constructor(credentials: ICredentials, config: IConfig, token: IToken = {
+        access_token: '',
+        expiry_date: 0,
+        refresh_token: '',
+        scope: '',
+        token_type: '',
+    }) {
         this.credentials = credentials
         this.config = config
-        this.tokenPath = tokenPath
+        this.token = token
     }
     /**
-     * Create an OAuth2 client with the given credentials, and then execute the
+     * Create an OAuth2 client with the given credentials
+     * Then create file(s) from configuration
      */
     public async sync() {
         const {
@@ -31,12 +38,10 @@ export class SheetEnv {
             redirect_uris } = this.credentials.installed
         this.oAuth2Client = new google.auth.OAuth2(
             client_id, client_secret, redirect_uris[0])
-        try {
-            this.oAuth2Client.setCredentials(
-                JSON.parse(
-                    readFileSync(this.tokenPath).toString()))
-        } catch (e) {
-            // set credential for oauth2 and set
+        // Use assigned token first if available
+        if (this.token.access_token) {
+            this.oAuth2Client.setCredentials(this.token)
+        } else {
             this.oAuth2Client = await getNewToken(this.oAuth2Client)
         }
         const gsheets = google.sheets({ version: 'v4', auth: this.oAuth2Client })

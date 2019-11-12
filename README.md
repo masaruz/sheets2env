@@ -20,19 +20,33 @@ const client = new SheetEnv({
     projects: [
         {
             dest: 'path/to/.env',
-            tab: 'tabname',
-            column: number
+            tab: 'google_sheet_tabname',
+            column: 1 // 0 is key column
         }
     ],
     sheetId: 'your_sheet_id',
-}, your_google_token_path)
+}, your_google_token)
 ```
 
 Note that if you don't have 
-```google_token_path``` just leave it blank, cli will ask you for authorization after you run sync()
+```google_token``` just leave it blank, terminal will ask you for authorization after you run sync()
 
 ```js
 await client.sync()
+```
+
+## Example of token file
+
+```js
+// This file is auto generated after sync()
+// Please .gitignore for your security
+{
+    "access_token": "...",
+    "expiry_date":  1573214579858,
+    "refresh_token": "...",
+    "scope":        "https://www.googleapis.com/auth/spreadsheets.readonly",
+    "token_type":   "Bearer",
+}
 ```
 
 #### Google Sheet Structure
@@ -46,7 +60,7 @@ SECRET_KEY | example | example | example
 ```js
 {
     dest: 'path/to/.env',
-    tab: 'tabname',
-    column: number <<< here
+    tab: 'google_sheet_tabname',
+    column: 1 // 0 is key column
 }
 ```

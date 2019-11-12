@@ -1,3 +1,15 @@
+/**
+ * Receive this token after authenticated with google 
+ * and accept to the policy 
+ */
+export interface IToken {
+    access_token: string
+    expiry_date: number
+    refresh_token: string
+    scope: string
+    token_type: string
+}
+
 export interface ICredentials {
     installed: IInstalledCredentials
 }

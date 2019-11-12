@@ -37,55 +37,57 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var colors_1 = require("colors");
-var fs_1 = require("fs");
 var googleapis_1 = require("googleapis");
 var service_1 = require("./service");
 var SheetEnv = (function () {
-    function SheetEnv(credentials, config, tokenPath) {
-        if (tokenPath === void 0) { tokenPath = ''; }
+    function SheetEnv(credentials, config, token) {
+        if (token === void 0) { token = {
+            access_token: '',
+            expiry_date: 0,
+            refresh_token: '',
+            scope: '',
+            token_type: ''
+        }; }
         this.credentials = credentials;
         this.config = config;
-        this.tokenPath = tokenPath;
+        this.token = token;
     }
     SheetEnv.prototype.sync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, client_secret, client_id, redirect_uris, e_1, _b, gsheets, tabs, sheetdata, e_2, data;
+            var _a, client_secret, client_id, redirect_uris, _b, gsheets, tabs, sheetdata, e_1, data;
             var _this = this;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
                         _a = this.credentials.installed, client_secret = _a.client_secret, client_id = _a.client_id, redirect_uris = _a.redirect_uris;
                         this.oAuth2Client = new googleapis_1.google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
-                        _c.label = 1;
+                        if (!this.token.access_token) return [3, 1];
+                        this.oAuth2Client.setCredentials(this.token);
+                        return [3, 3];
                     case 1:
-                        _c.trys.push([1, 2, , 4]);
-                        this.oAuth2Client.setCredentials(JSON.parse(fs_1.readFileSync(this.tokenPath).toString()));
-                        return [3, 4];
-                    case 2:
-                        e_1 = _c.sent();
                         _b = this;
                         return [4, service_1.getNewToken(this.oAuth2Client)];
-                    case 3:
+                    case 2:
                         _b.oAuth2Client = _c.sent();
-                        return [3, 4];
-                    case 4:
+                        _c.label = 3;
+                    case 3:
                         gsheets = googleapis_1.google.sheets({ version: 'v4', auth: this.oAuth2Client });
                         tabs = this.config.projects.map(function (project) { return project.tab + "!A2:F"; });
                         console.log(colors_1.yellow("Retreiving data from sheets " + tabs + " ..."));
-                        _c.label = 5;
-                    case 5:
-                        _c.trys.push([5, 7, , 8]);
+                        _c.label = 4;
+                    case 4:
+                        _c.trys.push([4, 6, , 7]);
                         return [4, gsheets.spreadsheets.values.batchGet({
                                 ranges: tabs,
                                 spreadsheetId: this.config.sheetId
                             })];
-                    case 6:
+                    case 5:
                         sheetdata = _c.sent();
-                        return [3, 8];
+                        return [3, 7];
+                    case 6:
+                        e_1 = _c.sent();
+                        throw new Error(e_1);
                     case 7:
-                        e_2 = _c.sent();
-                        throw new Error(e_2);
-                    case 8:
                         data = sheetdata.data.valueRanges;
                         if (data.length <= 0) {
                             throw new Error('No data found.');
