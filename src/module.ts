@@ -1,6 +1,7 @@
 import { yellow } from 'colors'
 import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
+import { has } from 'lodash'
 import { IConfig, ICredentials, IToken } from './model'
 import { createDotEnv, getNewToken } from './service'
 
@@ -10,21 +11,34 @@ export class SheetEnv {
     private config: IConfig
     private token: IToken
     /**
-     * Set credentials to this class
+     * Setup credentials 
      * @param credentials from google service account
      * @param config json file to define projects and sheet id
      * @param token get from google authorization
      */
-    constructor(credentials: ICredentials, config: IConfig, token: IToken = {
-        access_token: '',
-        expiry_date: 0,
-        refresh_token: '',
-        scope: '',
-        token_type: '',
-    }) {
+    constructor(credentials: ICredentials, config: IConfig, token?: IToken) {
+        this.validateCreds(credentials)
         this.credentials = credentials
         this.config = config
         this.token = token
+    }
+    /**
+     * Validate if credentials has required attributes
+     * @param credentials google sheet credentials
+     */
+    private validateCreds(credentials: ICredentials) {
+        if (!has(credentials, 'installed')) {
+            throw new Error('Credential missing installed')
+        }
+        if (!has(credentials.installed, 'client_id')) {
+            throw new Error('Credential Installed missing client_id')
+        }
+        if (!has(credentials.installed, 'client_secret')) {
+            throw new Error('Credential Installed missing client_secret')
+        }
+        if (!has(credentials.installed, 'redirect_uris')) {
+            throw new Error('Credential Installed missing redirect_uris')
+        }
     }
     /**
      * Create an OAuth2 client with the given credentials
@@ -38,7 +52,7 @@ export class SheetEnv {
         this.oAuth2Client = new google.auth.OAuth2(
             client_id, client_secret, redirect_uris[0])
         // Use assigned token first if available
-        if (this.token.access_token) {
+        if (has(this, ['token', 'access_token'])) {
             this.oAuth2Client.setCredentials(this.token)
         } else {
             this.oAuth2Client = await getNewToken(this.oAuth2Client)
