@@ -1,9 +1,9 @@
 {
   "name": "env-from-sheet",
-  "version": "2.0.4",
+  "version": "2.0.7",
   "description": "Read google sheet and create .env file from sheet column and tab",
   "main": "./dist/index.js",
-  "typings": "./dist/main.d.ts",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "test": "jest",
     "build": "rm -rf ./dist && tsc -p tsconfig.json",
