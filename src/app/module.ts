@@ -1,73 +1,85 @@
 import { yellow } from 'colors'
+import { readFileSync } from 'fs'
 import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
-import { has } from 'lodash'
+import { has, isEmpty, join } from 'lodash'
+import { tmpdir } from 'os'
 import { REDIRECT_URIS } from './constant'
 import { IConfig, ICredentials, ISheetRange, IToken } from './model'
 import { createDotEnv, getNewToken, range2rows } from './service'
 
 export class SheetEnv {
-    private oAuth2Client: OAuth2Client
-    private credentials: ICredentials
-    private config: IConfig
-    private token: IToken
+    private _oAuth2Client: OAuth2Client
+    private _config: IConfig
+    private _token: IToken
+    private _credentials: ICredentials
+
+    get credentials(): ICredentials {
+        return this._credentials
+    }
+    /**
+     * @param credentials from google service account
+     */
+    set credentials(credentials: ICredentials) {
+        this._credentials = credentials
+    }
     /**
      * Setup credentials 
-     * @param credentials from google service account
      * @param config json file to define projects and sheet id
      * @param token get from google authorization
      */
-    constructor(credentials: ICredentials, config: IConfig, token?: IToken) {
-        this.validateCreds(credentials)
-        this.credentials = credentials
-        this.config = config
-        this.token = token
+    constructor(config: IConfig, token?: IToken) {
+        this._config = config
+        this._token = token
     }
-    /**
-     * Return credentails of this class
-     */
-    public getCredentials(): ICredentials {
-        return this.credentials
-    }
-    /**
-     * Validate if credentials has required attributes
-     * @param credentials google sheet credentials
-     */
-    private validateCreds(credentials: ICredentials) {
-        if (!has(credentials, 'installed')) {
+
+    public validateCreds() {
+        if (!has(this.credentials, 'installed')) {
             throw new Error('Credential missing installed')
         }
-        if (!has(credentials.installed, 'client_id')) {
+        if (!has(this.credentials.installed, 'client_id')) {
             throw new Error('Credential Installed missing client_id')
         }
-        if (!has(credentials.installed, 'client_secret')) {
+        if (!has(this.credentials.installed, 'client_secret')) {
             throw new Error('Credential Installed missing client_secret')
         }
-        if (!has(credentials.installed, 'redirect_uris') ||
-            credentials.installed.redirect_uris.length === 0) {
+    }
+
+    public initCredentials(): void {
+        // If never set credentials
+        if (isEmpty(this.credentials)) {
+            const tmppath = join(tmpdir(), 'env-from-sheet-creds.json')
+            const creds = JSON.parse(readFileSync(tmppath).toString())
+            this.credentials = creds
+        }
+        // If credential has no redirect uris
+        if (!has(this.credentials.installed, 'redirect_uris') ||
+            isEmpty(this.credentials.installed.redirect_uris)) {
             // Overwrite it with default
-            credentials.installed.redirect_uris = REDIRECT_URIS
+            this.credentials.installed.redirect_uris = REDIRECT_URIS
         }
     }
     /**
      * Create an OAuth2 client with the given credentials
      * Then create file(s) from configuration
      */
-    public async sync() {
+    public async sync(): Promise<void> {
+        this.initCredentials()
+        this.validateCreds()
         const {
             client_secret,
             client_id,
             redirect_uris } = this.credentials.installed
-        this.oAuth2Client = new google.auth.OAuth2(
+        this._oAuth2Client = new google.auth.OAuth2(
             client_id, client_secret, redirect_uris[0])
         // Use assigned token first if available
         if (has(this, ['token', 'access_token'])) {
-            this.oAuth2Client.setCredentials(this.token)
+            this._oAuth2Client.setCredentials(this._token)
         } else {
-            this.oAuth2Client = await getNewToken(this.oAuth2Client)
+            this._oAuth2Client = await getNewToken(this._oAuth2Client)
         }
-        const gsheets = google.sheets({ version: 'v4', auth: this.oAuth2Client })
-        const tabs = this.config.projects.map(project => `${project.tab}!A2:F`)
+        const gsheets = google.sheets({ version: 'v4', auth: this._oAuth2Client })
+        const tabs = this._config.projects.map(project => `${project.tab}!A2:F`)
         // tslint:disable-next-line
         console.log(yellow(`Retreiving data from sheets ${tabs} ...`))
         // get from multiple tabs sheet
@@ -75,7 +87,7 @@ export class SheetEnv {
         try {
             sheetdata = await gsheets.spreadsheets.values.batchGet({
                 ranges: tabs,
-                spreadsheetId: this.config.sheetId,
+                spreadsheetId: this._config.sheetId,
             })
         } catch (e) {
             throw new Error(e)
@@ -89,7 +101,7 @@ export class SheetEnv {
             // project's name ex. backend, scoreup, scoreup-people
             const project = range.range.split(`!`)[0].replace(/\'/g, '')
             // project's configuration from config file
-            const pconfig = this.config.projects.find(p => p.tab === project)
+            const pconfig = this._config.projects.find(p => p.tab === project)
             const rows = range2rows(range as ISheetRange, pconfig.column)
             createDotEnv(rows, pconfig.dest)
         })
