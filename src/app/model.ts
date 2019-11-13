@@ -17,7 +17,7 @@ export interface ICredentials {
 export interface IInstalledCredentials {
     client_secret: string
     client_id: string
-    redirect_uris: string[]
+    redirect_uris?: string[]
 }
 
 export interface ISheetRow {

@@ -6,8 +6,39 @@ describe('init module with config', () => {
         expect(() => new SheetEnv({} as any, {} as any)).toThrow()
         expect(() => new SheetEnv({ installed: {} } as any, {} as any)).toThrow()
         expect(() => new SheetEnv({ installed: { client_id: '' } } as any, {} as any)).toThrow()
-        expect(() => new SheetEnv({ installed: { client_id: '', client_secret: '' } } as any, {} as any)).toThrow()
+        expect(() => new SheetEnv({ installed: { client_id: '', client_secret: '' } } as any, {} as any)).not.toThrow()
         expect(() => new SheetEnv({ installed: { client_id: '', client_secret: '', redirect_uris: [] } }, {} as any)).not.toThrow()
+    })
+
+    it('should add default redirect uris if not provided', () => {
+        const client = new SheetEnv({
+            installed: {
+                client_id: 'xxx',
+                client_secret: 'yyy',
+                redirect_uris: []
+            }
+        }, {} as any)
+        const creds = client.getCredentials()
+        const { client_id, client_secret, redirect_uris } = creds.installed
+        expect(client_id).toEqual('xxx')
+        expect(client_secret).toEqual('yyy')
+        expect(redirect_uris.length).toEqual(2)
+    })
+
+    it('no overwrite if provided redirect_uris', () => {
+        const client = new SheetEnv({
+            installed: {
+                client_id: 'xxx',
+                client_secret: 'yyy',
+                redirect_uris: ['localhost']
+            }
+        }, {} as any)
+        const creds = client.getCredentials()
+        const { client_id, client_secret, redirect_uris } = creds.installed
+        expect(client_id).toEqual('xxx')
+        expect(client_secret).toEqual('yyy')
+        expect(redirect_uris.length).toEqual(1)
+        expect(redirect_uris[0]).toEqual('localhost')
     })
 
     it('should not throw the error when client sync with empty config', () => {

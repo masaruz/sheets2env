@@ -2,6 +2,7 @@ import { yellow } from 'colors'
 import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
 import { has } from 'lodash'
+import { REDIRECT_URIS } from './constant'
 import { IConfig, ICredentials, ISheetRange, IToken } from './model'
 import { createDotEnv, getNewToken, range2rows } from './service'
 
@@ -23,6 +24,12 @@ export class SheetEnv {
         this.token = token
     }
     /**
+     * Return credentails of this class
+     */
+    public getCredentials(): ICredentials {
+        return this.credentials
+    }
+    /**
      * Validate if credentials has required attributes
      * @param credentials google sheet credentials
      */
@@ -36,8 +43,10 @@ export class SheetEnv {
         if (!has(credentials.installed, 'client_secret')) {
             throw new Error('Credential Installed missing client_secret')
         }
-        if (!has(credentials.installed, 'redirect_uris')) {
-            throw new Error('Credential Installed missing redirect_uris')
+        if (!has(credentials.installed, 'redirect_uris') ||
+            credentials.installed.redirect_uris.length === 0) {
+            // Overwrite it with default
+            credentials.installed.redirect_uris = REDIRECT_URIS
         }
     }
     /**
