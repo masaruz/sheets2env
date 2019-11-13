@@ -1,4 +1,4 @@
-import { SheetEnv } from '../src/module'
+import { SheetEnv } from '../src/app/module'
 describe('init module with config', () => {
     it('should throw the error when put empty credential', () => {
         expect(() => new SheetEnv({} as any, {} as any)).toThrow()

@@ -1,5 +1,5 @@
-import { createDotEnv } from '../src/service'
-import { ISheetRow } from '../src/model'
+import { createDotEnv } from '../src/app/service'
+import { ISheetRow } from '../src/app/model'
 import { join } from 'path'
 import { readFileSync, unlinkSync } from 'fs'
 
