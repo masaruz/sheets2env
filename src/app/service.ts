@@ -3,7 +3,7 @@ import { promises as fs } from 'fs'
 import { OAuth2Client } from 'google-auth-library'
 import { isEmpty, reduce } from 'lodash'
 import { createInterface } from 'readline'
-import { SCOPE, TOKEN_PATH } from './constant'
+import { GOOGLE_TOKEN_TEMP_PATH, SCOPE } from './constant'
 import { IArg, ISheetRange, ISheetRow } from './model'
 
 /**
@@ -29,9 +29,9 @@ export async function getNewToken(oAuth2: OAuth2Client): Promise<OAuth2Client> {
                 const response = await oAuth2.getToken(code)
                 const token = response.tokens
                 oAuth2.setCredentials(token)
-                await fs.writeFile(TOKEN_PATH, JSON.stringify(token))
+                await fs.writeFile(GOOGLE_TOKEN_TEMP_PATH, JSON.stringify(token))
                 // tslint:disable-next-line
-                console.log(green(`Token stored to %c${TOKEN_PATH}`))
+                console.log(green(`Token stored to ${GOOGLE_TOKEN_TEMP_PATH}`))
                 resolve(oAuth2)
             } catch (e) {
                 rejects(e)

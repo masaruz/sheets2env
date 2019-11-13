@@ -2,9 +2,8 @@ import { yellow } from 'colors'
 import { readFileSync } from 'fs'
 import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
-import { has, isEmpty, join } from 'lodash'
-import { tmpdir } from 'os'
-import { REDIRECT_URIS } from './constant'
+import { has, isEmpty } from 'lodash'
+import { REDIRECT_URIS, SHEET_CREDS_TEMP_PATH, GOOGLE_TOKEN_TEMP_PATH } from './constant'
 import { IConfig, ICredentials, ISheetRange, IToken } from './model'
 import { createDotEnv, getNewToken, range2rows } from './service'
 
@@ -48,9 +47,15 @@ export class SheetEnv {
     public initCredentials(): void {
         // If never set credentials
         if (isEmpty(this.credentials)) {
-            const tmppath = join(tmpdir(), 'env-from-sheet-creds.json')
-            const creds = JSON.parse(readFileSync(tmppath).toString())
+            const creds = JSON.parse(readFileSync(SHEET_CREDS_TEMP_PATH).toString())
             this.credentials = creds
+        }
+        if (isEmpty(this._token)) {
+            try {
+                const token = JSON.parse(readFileSync(GOOGLE_TOKEN_TEMP_PATH).toString())
+                this._token = token
+                // tslint:disable-next-line
+            } catch (e) { }
         }
         // If credential has no redirect uris
         if (!has(this.credentials.installed, 'redirect_uris') ||
@@ -73,7 +78,7 @@ export class SheetEnv {
         this._oAuth2Client = new google.auth.OAuth2(
             client_id, client_secret, redirect_uris[0])
         // Use assigned token first if available
-        if (has(this, ['token', 'access_token'])) {
+        if (has(this, ['_token', 'access_token'])) {
             this._oAuth2Client.setCredentials(this._token)
         } else {
             this._oAuth2Client = await getNewToken(this._oAuth2Client)
