@@ -43,3 +43,9 @@ export interface IProject {
     // Sheet column
     column: number
 }
+
+export interface ISheetRange {
+    range: string
+    majorDimension: string
+    values: string[][]
+}

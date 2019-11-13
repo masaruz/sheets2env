@@ -2,8 +2,8 @@ import { yellow } from 'colors'
 import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
 import { has } from 'lodash'
-import { IConfig, ICredentials, IToken } from './model'
-import { createDotEnv, getNewToken } from './service'
+import { IConfig, ICredentials, ISheetRange, IToken } from './model'
+import { createDotEnv, getNewToken, range2rows } from './service'
 
 export class SheetEnv {
     private oAuth2Client: OAuth2Client
@@ -79,18 +79,10 @@ export class SheetEnv {
         data.forEach(range => {
             // project's name ex. backend, scoreup, scoreup-people
             const project = range.range.split(`!`)[0].replace(/\'/g, '')
-            const rows = range.values
             // project's configuration from config file
             const pconfig = this.config.projects.find(p => p.tab === project)
-            createDotEnv(
-                rows.map(row => {
-                    const key = row[0]
-                    const value = row[pconfig.column]
-                    if (!value) {
-                        throw new Error(`Value of ${key} is not defined`)
-                    }
-                    return { key, value }
-                }), pconfig.dest)
+            const rows = range2rows(range as ISheetRange, pconfig.column)
+            createDotEnv(rows, pconfig.dest)
         })
     }
 }

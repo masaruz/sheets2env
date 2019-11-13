@@ -1,9 +1,10 @@
 import { green, red, yellow } from 'colors'
 import { promises as fs } from 'fs'
 import { OAuth2Client } from 'google-auth-library'
+import { isEmpty, reduce } from 'lodash'
 import { createInterface } from 'readline'
 import { SCOPE, TOKEN_PATH } from './constant'
-import { IArg, ISheetRow } from './model'
+import { IArg, ISheetRange, ISheetRow } from './model'
 
 /**
  * Get and store new token after prompting for user authorization, and then
@@ -72,4 +73,36 @@ export function getArgument(option: IArg): string {
     }
 
     return process.argv[index + 1]
+}
+
+/**
+ * Decode from process.env
+ */
+export function base64ToJson(key: string): any {
+    const encoded = process.env[key]
+    if (!encoded) {
+        throw new Error(`Please define ${key} in .env`)
+    }
+    let result
+    try {
+        result = JSON.parse(Buffer.from(encoded, 'base64').toString())
+    } catch (e) {
+        throw new Error(`This value is not a JSON`)
+    }
+    return result
+}
+
+
+export function range2rows(range: ISheetRange, column: number): ISheetRow[] {
+    return reduce(range.values, (rows, row) => {
+        const key = row[0]
+        if (isEmpty(key)) {
+            return rows
+        }
+        const value = row[column]
+        if (!value) {
+            throw new Error(`Value of ${key} is not defined`)
+        }
+        return rows.concat([{ key, value }])
+    }, [])
 }

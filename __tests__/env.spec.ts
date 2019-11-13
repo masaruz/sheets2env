@@ -1,10 +1,10 @@
-import { createDotEnv } from '../src/app/service'
+import { createDotEnv, base64ToJson } from '../src/app/service'
 import { ISheetRow } from '../src/app/model'
 import { join } from 'path'
 import { readFileSync, unlinkSync } from 'fs'
 
 describe('create dot env', () => {
-    const envpath = join(__dirname, '.env')
+    const envpath = join(__dirname, '.env.unit')
 
     afterEach(() => {
         // Incase of some tests don't create .env
@@ -89,5 +89,22 @@ describe('create dot env', () => {
         expect(data1[1]).toBe('stamp')
         expect(data2[0]).toBe('name2')
         expect(data2[1]).toBe('masaruz')
+    })
+})
+
+describe('decod from env', () => {
+    test('throw errro when value not found', async () => {
+        expect(() => base64ToJson('')).toThrow()
+    })
+
+    test('return object when value found', () => {
+        process.env['KEY'] = 'eyJuYW1lIjoic3RhbXAifQ==' // {"name":"stamp"}
+        const obj = base64ToJson('KEY')
+        expect(obj.name).toBe('stamp')
+    })
+
+    test('throw errro when value is not an object', () => {
+        process.env['KEY'] = 'aGVsbG8=' // hello
+        expect(() => base64ToJson('KEY')).toThrow()
     })
 })
