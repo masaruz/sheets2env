@@ -3,7 +3,7 @@ import { readFileSync } from 'fs'
 import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
 import { has, isEmpty } from 'lodash'
-import { REDIRECT_URIS, SHEET_CREDS_TEMP_PATH, GOOGLE_TOKEN_TEMP_PATH } from './constant'
+import { GOOGLE_TOKEN_PATH, REDIRECT_URIS, SHEET_CREDS_PATH } from './constant'
 import { IConfig, ICredentials, ISheetRange, IToken } from './model'
 import { createDotEnv, getNewToken, range2rows } from './service'
 
@@ -47,12 +47,14 @@ export class SheetEnv {
     public initCredentials(): void {
         // If never set credentials
         if (isEmpty(this.credentials)) {
-            const creds = JSON.parse(readFileSync(SHEET_CREDS_TEMP_PATH).toString())
+            const creds = JSON.parse(readFileSync(SHEET_CREDS_PATH).toString())
             this.credentials = creds
         }
         if (isEmpty(this._token)) {
+            // Allow to be crash 
+            // For asking user authentication
             try {
-                const token = JSON.parse(readFileSync(GOOGLE_TOKEN_TEMP_PATH).toString())
+                const token = JSON.parse(readFileSync(GOOGLE_TOKEN_PATH).toString())
                 this._token = token
                 // tslint:disable-next-line
             } catch (e) { }

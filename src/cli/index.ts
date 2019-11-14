@@ -1,6 +1,6 @@
-import { writeFileSync } from 'fs'
+import { existsSync, mkdirSync, writeFileSync } from 'fs'
 import { prompt } from 'inquirer'
-import { SHEET_CREDS_TEMP_PATH } from '../app/constant'
+import { CONFIG_PATH, SHEET_CREDS_PATH } from '../app/constant'
 
 prompt([
     {
@@ -14,7 +14,10 @@ prompt([
         type: 'password',
     },
 ]).then(answers => {
-    writeFileSync(SHEET_CREDS_TEMP_PATH, JSON.stringify({
+    if (!existsSync(CONFIG_PATH)) {
+        mkdirSync(CONFIG_PATH)
+    }
+    writeFileSync(SHEET_CREDS_PATH, JSON.stringify({
         installed: answers,
     }))
 })
