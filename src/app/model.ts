@@ -17,10 +17,10 @@ export interface ICredentials {
 export interface IInstalledCredentials {
     client_secret: string
     client_id: string
-    redirect_uris: string[]
+    redirect_uris?: string[]
 }
 
-export interface ISheetRow {
+export interface ISheetsRow {
     key: string
     value: string
 }
@@ -42,4 +42,19 @@ export interface IProject {
     tab: string
     // Sheet column
     column: number
+}
+
+export interface ISheetRange {
+    range: string
+    majorDimension: string
+    values: string[][]
+}
+
+export interface IModuleConfig {
+    config?: IConfig
+    credentials?: ICredentials
+    token?: IToken
+    tokenPath?: string
+    credentialsPath?: string
+    configPath?: string
 }

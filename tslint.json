@@ -11,7 +11,22 @@
         "quotemark": [
             true,
             "single"
-        ]
+        ],
+        "trailing-comma": [
+            true,
+            {
+                "multiline": "always",
+                "singleline": "never"
+            }
+        ],
+        "variable-name": {
+            "options": [
+                "ban-keywords",
+                "check-format",
+                "allow-leading-underscore",
+                "allow-pascal-case"
+            ]
+        }
     },
     "linterOptions": {
         "exclude": [

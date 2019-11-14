@@ -1,10 +1,10 @@
-import { createDotEnv } from '../src/service'
-import { ISheetRow } from '../src/model'
+import { createDotEnv, base64ToJson } from '../src/app/service'
+import { ISheetsRow } from '../src/app/model'
 import { join } from 'path'
 import { readFileSync, unlinkSync } from 'fs'
 
 describe('create dot env', () => {
-    const envpath = join(__dirname, '.env')
+    const envpath = join(__dirname, '.env.unit')
 
     afterEach(() => {
         // Incase of some tests don't create .env
@@ -20,7 +20,7 @@ describe('create dot env', () => {
                 key: 'name',
                 value: 'stamp'
             }
-        ] as ISheetRow[], '')).rejects.toThrow()
+        ] as ISheetsRow[], '')).rejects.toThrow()
     })
 
     test('throw error when neither provide data nor dir', async () => {
@@ -33,7 +33,7 @@ describe('create dot env', () => {
                 key: 'name',
                 value: 'stamp'
             }
-        ] as ISheetRow[], '.')).rejects.toThrow()
+        ] as ISheetsRow[], '.')).rejects.toThrow()
     })
 
     test('key and value defined properly', async () => {
@@ -42,7 +42,7 @@ describe('create dot env', () => {
                 key: 'name',
                 value: 'stamp'
             }
-        ] as ISheetRow[], envpath)
+        ] as ISheetsRow[], envpath)
         const rawdata = readFileSync(envpath)
         const lines = rawdata.toString().split('\n')
         const data = lines[0].split('=')
@@ -60,7 +60,7 @@ describe('create dot env', () => {
             {
                 value: 'masaruz'
             }
-        ] as ISheetRow[], envpath)
+        ] as ISheetsRow[], envpath)
         const rawdata = readFileSync(envpath)
         const lines = rawdata.toString().split('\n')
         const data = lines[0].split('=')
@@ -79,7 +79,7 @@ describe('create dot env', () => {
                 key: 'name2',
                 value: 'masaruz'
             }
-        ] as ISheetRow[], envpath)
+        ] as ISheetsRow[], envpath)
         const rawdata = readFileSync(envpath)
         const lines = rawdata.toString().split('\n')
         const data1 = lines[0].split('=')
@@ -89,5 +89,22 @@ describe('create dot env', () => {
         expect(data1[1]).toBe('stamp')
         expect(data2[0]).toBe('name2')
         expect(data2[1]).toBe('masaruz')
+    })
+})
+
+describe('decod from env', () => {
+    test('throw errro when value not found', async () => {
+        expect(() => base64ToJson('')).toThrow()
+    })
+
+    test('return object when value found', () => {
+        process.env['KEY'] = 'eyJuYW1lIjoic3RhbXAifQ==' // {"name":"stamp"}
+        const obj = base64ToJson('KEY')
+        expect(obj.name).toBe('stamp')
+    })
+
+    test('throw errro when value is not an object', () => {
+        process.env['KEY'] = 'aGVsbG8=' // hello
+        expect(() => base64ToJson('KEY')).toThrow()
     })
 })

@@ -103,4 +103,7 @@ public/
 google.token
 secret.ts
 
+# config
+sheets2env.config.json
+
 # End of https://www.gitignore.io/api/node
