@@ -1,2 +1,2 @@
-export { SheetEnv } from './module'
+export { SheetsEnv } from './module'
 

@@ -7,7 +7,7 @@ import { GOOGLE_TOKEN_PATH, REDIRECT_URIS, SHEETS_CONFIG_PATH, SHEETS_CREDS_PATH
 import { IConfig, ICredentials, IModuleConfig, ISheetRange, IToken } from './model'
 import { createDotEnv, getNewToken, range2rows } from './service'
 
-export class SheetEnv {
+export class SheetsEnv {
     private _oAuth2Client: OAuth2Client
     private _config: IConfig
     private _configPath: string

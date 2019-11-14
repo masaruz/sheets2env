@@ -1,4 +1,4 @@
-import { SheetEnv } from '../src/app/module'
+import { SheetsEnv } from '../src/app/module'
 import { range2rows } from '../src/app/service'
 import { unlinkSync, writeFileSync } from 'fs'
 import { join } from 'path'
@@ -17,27 +17,27 @@ describe('init module with config', () => {
     }
 
     it('should throw the error when put empty credential', () => {
-        let client = new SheetEnv({
+        let client = new SheetsEnv({
             credentials: {} as any,
             config: dconfig
         })
         expect(() => client.validate()).toThrow()
-        client = new SheetEnv({
+        client = new SheetsEnv({
             credentials: { installed: {} } as any,
             config: dconfig
         })
         expect(() => client.validate()).toThrow()
-        client = new SheetEnv({
+        client = new SheetsEnv({
             credentials: { installed: { client_id: '' } } as any,
             config: dconfig
         })
         expect(() => client.validate()).toThrow()
-        client = new SheetEnv({
+        client = new SheetsEnv({
             credentials: { installed: { client_id: '', client_secret: '' } } as any,
             config: dconfig
         })
         expect(() => client.validate()).not.toThrow()
-        client = new SheetEnv({
+        client = new SheetsEnv({
             credentials: { installed: { client_id: '', client_secret: '', redirect_uris: [] } } as any,
             config: dconfig
         })
@@ -45,7 +45,7 @@ describe('init module with config', () => {
     })
 
     it('should add default redirect uris if not provided', () => {
-        const client = new SheetEnv({
+        const client = new SheetsEnv({
             credentials: {
                 installed: {
                     client_id: 'xxx',
@@ -65,7 +65,7 @@ describe('init module with config', () => {
     })
 
     it('no overwrite if provided redirect_uris', () => {
-        const client = new SheetEnv({
+        const client = new SheetsEnv({
             credentials: {
                 installed: {
                     client_id: 'xxx',
@@ -85,7 +85,7 @@ describe('init module with config', () => {
     })
 
     it('should not throw the error when client sync with empty config', () => {
-        const client = new SheetEnv({
+        const client = new SheetsEnv({
             credentials: {
                 installed: {
                     client_id: '',
@@ -187,7 +187,7 @@ describe('validate projects config', () => {
             ],
             sheetId: 'foo'
         }))
-        const client = new SheetEnv({
+        const client = new SheetsEnv({
             credentials: {
                 installed: {
                     client_id: 'xxx',
