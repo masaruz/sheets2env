@@ -1,23 +1,16 @@
-import { existsSync, mkdirSync, writeFileSync } from 'fs'
-import { prompt } from 'inquirer'
-import { CONFIG_PATH, SHEETS_CREDS_PATH } from '../app/constant'
+#!/usr/bin/env node
 
-prompt([
-    {
-        message: 'Please type your google sheet client_id:',
-        name: 'client_id',
-        type: 'password',
-    },
-    {
-        message: 'Please type your google sheet client_secret:',
-        name: 'client_secret',
-        type: 'password',
-    },
-]).then(answers => {
-    if (!existsSync(CONFIG_PATH)) {
-        mkdirSync(CONFIG_PATH)
-    }
-    writeFileSync(SHEETS_CREDS_PATH, JSON.stringify({
-        installed: answers,
-    }))
-})
+import { INIT, SYNC } from './constant'
+import { init } from './init'
+import { sync } from './sync'
+
+const args = process.argv.slice(2)
+
+switch (args[0]) {
+    case INIT:
+        init()
+        break
+    case SYNC:
+        sync()
+        break
+}

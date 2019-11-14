@@ -58,8 +58,14 @@ export class SheetsEnv {
         // If never set credentials
         if (isEmpty(this._credentials)) {
             const path = this._credentialsPath || SHEETS_CREDS_PATH
-            const creds = JSON.parse(readFileSync(path).toString())
-            this._credentials = creds
+            try {
+                const creds = JSON.parse(readFileSync(path).toString())
+                this._credentials = creds
+            } catch (e) {
+                // tslint:disable-next-line
+                console.log(yellow(`Error: no ${SHEETS_CREDS_PATH} found, please run cli init before run this command.`))
+                process.exit(1)
+            }
         }
         // If credential has no redirect uris
         if (!has(this._credentials.installed, 'redirect_uris') ||
@@ -79,8 +85,14 @@ export class SheetsEnv {
         }
         if (isEmpty(this._config)) {
             const path = this._configPath || SHEETS_CONFIG_PATH
-            const config = JSON.parse(readFileSync(path).toString())
-            this._config = config
+            try {
+                const config = JSON.parse(readFileSync(path).toString())
+                this._config = config
+            } catch (e) {
+                // tslint:disable-next-line
+                console.log(yellow(`Error: no ${SHEETS_CONFIG_PATH} found, please run cli init before run this command.`))
+                process.exit(1)
+            }
         }
     }
     /**

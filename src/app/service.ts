@@ -29,7 +29,7 @@ export async function getNewToken(oAuth2: OAuth2Client): Promise<OAuth2Client> {
                 const response = await oAuth2.getToken(code)
                 const token = response.tokens
                 oAuth2.setCredentials(token)
-                writeFileSync(GOOGLE_TOKEN_PATH, JSON.stringify(token))
+                writeFileSync(GOOGLE_TOKEN_PATH, JSON.stringify(token, null, 4))
                 // tslint:disable-next-line
                 console.log(green(`Token stored to ${GOOGLE_TOKEN_PATH}`))
                 resolve(oAuth2)
