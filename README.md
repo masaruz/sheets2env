@@ -3,43 +3,28 @@
 #### With [npm](https://npmjs.com)
 
 ```
-npm install --save-dev env-from-sheet
+npm install --save-dev sheets2env
 ```
-## Usage
-```js
-import { SheetEnv } from 'env-from-sheet'
-
-const client = new SheetEnv({
-    installed:
-    {
-        client_id: 'your_client_id',
-        client_secret: 'your_secret',
-        redirect_uris: ['http://localhost']
-    }
-}, {
-    projects: [
-        {
-            dest: 'path/to/.env',
-            tab: 'google_sheet_tabname',
-            column: 1 // 0 is key column
-        }
-    ],
-    sheetId: 'your_sheet_id',
-}, your_google_token)
+## Setup & Usage
 ```
-
-Note that if you don't have 
-```google_token``` just leave it blank, terminal will ask you for authorization after you run sync()
-
+$ sheets2env init
+```
+##### Sync your sheet to ```your_project/.env```
+```
+$ sheets2env sync
+```
+##### Or you can call in script
 ```js
+import { SheetsEnv } from 'sheets2env'
+
+const client = new SheetsEnv()
 await client.sync()
 ```
-
 ## Example of token file
 
 ```js
 // This file is auto generated after sync()
-// Please .gitignore for your security
+// This file is placed to ~/.sheets2env/google-token
 {
     "access_token": "...",
     "expiry_date":  1573214579858,
@@ -57,6 +42,7 @@ key | develop | uat | production
 PROJECT_ID | example | example | example
 SECRET_KEY | example | example | example
 
+You can find this config at ```your_project/sheets2env.config.json```
 ```js
 {
     dest: 'path/to/.env',
