@@ -4,7 +4,7 @@ import { OAuth2Client } from 'google-auth-library'
 import { isEmpty, reduce } from 'lodash'
 import { createInterface } from 'readline'
 import { GOOGLE_TOKEN_PATH, SCOPE } from './constant'
-import { IArg, ISheetRange, ISheetRow } from './model'
+import { IArg, ISheetRange, ISheetsRow } from './model'
 
 /**
  * Get and store new token after prompting for user authorization, and then
@@ -43,11 +43,11 @@ export async function getNewToken(oAuth2: OAuth2Client): Promise<OAuth2Client> {
 /**
  * Create .env file by interation of sheet data
  */
-export async function createDotEnv(data: ISheetRow[], directory: string): Promise<void> {
+export async function createDotEnv(data: ISheetsRow[], directory: string): Promise<void> {
     if (!directory) {
         throw new Error(red('No directory defined'))
     }
-    const formatted = (result: string, row: ISheetRow) => {
+    const formatted = (result: string, row: ISheetsRow) => {
         return row.key ? `${result}${row.key}=${row.value}\n` : `${result}`
     }
     const config = data.reduce(formatted, '').trim()
@@ -93,7 +93,7 @@ export function base64ToJson(key: string): any {
 }
 
 
-export function range2rows(range: ISheetRange, column: number): ISheetRow[] {
+export function range2rows(range: ISheetRange, column: number): ISheetsRow[] {
     return reduce(range.values, (rows, row) => {
         const key = row[0]
         if (isEmpty(key)) {

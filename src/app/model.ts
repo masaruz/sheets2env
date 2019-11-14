@@ -20,7 +20,7 @@ export interface IInstalledCredentials {
     redirect_uris?: string[]
 }
 
-export interface ISheetRow {
+export interface ISheetsRow {
     key: string
     value: string
 }
@@ -48,4 +48,13 @@ export interface ISheetRange {
     range: string
     majorDimension: string
     values: string[][]
+}
+
+export interface IModuleConfig {
+    config?: IConfig
+    credentials?: ICredentials
+    token?: IToken
+    tokenPath?: string
+    credentialsPath?: string
+    configPath?: string
 }

@@ -1,32 +1,62 @@
 import { SheetEnv } from '../src/app/module'
 import { range2rows } from '../src/app/service'
+import { unlinkSync, writeFileSync } from 'fs'
+import { join } from 'path'
 
 describe('init module with config', () => {
+
+    const dconfig = {
+        projects: [
+            {
+                dest: '',
+                tab: '',
+                column: 0
+            }
+        ],
+        sheetId: 'foo'
+    }
+
     it('should throw the error when put empty credential', () => {
-        const client = new SheetEnv({} as any)
-        client.credentials = {} as any
-        expect(() => client.validateCreds()).toThrow()
-        client.credentials = { installed: {} } as any
-        expect(() => client.validateCreds()).toThrow()
-        client.credentials = { installed: { client_id: '' } } as any
-        expect(() => client.validateCreds()).toThrow()
-        client.credentials = { installed: { client_id: '', client_secret: '' } } as any
-        expect(() => client.validateCreds()).not.toThrow()
-        client.credentials = { installed: { client_id: '', client_secret: '', redirect_uris: [] } }
-        expect(() => client.validateCreds()).not.toThrow()
+        let client = new SheetEnv({
+            credentials: {} as any,
+            config: dconfig
+        })
+        expect(() => client.validate()).toThrow()
+        client = new SheetEnv({
+            credentials: { installed: {} } as any,
+            config: dconfig
+        })
+        expect(() => client.validate()).toThrow()
+        client = new SheetEnv({
+            credentials: { installed: { client_id: '' } } as any,
+            config: dconfig
+        })
+        expect(() => client.validate()).toThrow()
+        client = new SheetEnv({
+            credentials: { installed: { client_id: '', client_secret: '' } } as any,
+            config: dconfig
+        })
+        expect(() => client.validate()).not.toThrow()
+        client = new SheetEnv({
+            credentials: { installed: { client_id: '', client_secret: '', redirect_uris: [] } } as any,
+            config: dconfig
+        })
+        expect(() => client.validate()).not.toThrow()
     })
 
     it('should add default redirect uris if not provided', () => {
-        const client = new SheetEnv({} as any)
-        client.credentials = {
-            installed: {
-                client_id: 'xxx',
-                client_secret: 'yyy',
-                redirect_uris: []
-            }
-        }
+        const client = new SheetEnv({
+            credentials: {
+                installed: {
+                    client_id: 'xxx',
+                    client_secret: 'yyy',
+                    redirect_uris: []
+                }
+            },
+            config: dconfig
+        })
         expect(client.credentials.installed.redirect_uris.length).toEqual(0)
-        client.initCredentials()
+        client.init()
         const creds = client.credentials
         const { client_id, client_secret, redirect_uris } = creds.installed
         expect(client_id).toEqual('xxx')
@@ -35,15 +65,17 @@ describe('init module with config', () => {
     })
 
     it('no overwrite if provided redirect_uris', () => {
-        const client = new SheetEnv({} as any)
-        client.credentials = {
-            installed: {
-                client_id: 'xxx',
-                client_secret: 'yyy',
-                redirect_uris: ['localhost']
-            }
-        }
-        client.initCredentials()
+        const client = new SheetEnv({
+            credentials: {
+                installed: {
+                    client_id: 'xxx',
+                    client_secret: 'yyy',
+                    redirect_uris: ['localhost']
+                }
+            },
+            config: dconfig
+        })
+        client.init()
         const creds = client.credentials
         const { client_id, client_secret, redirect_uris } = creds.installed
         expect(client_id).toEqual('xxx')
@@ -53,14 +85,16 @@ describe('init module with config', () => {
     })
 
     it('should not throw the error when client sync with empty config', () => {
-        const client = new SheetEnv({} as any)
-        client.credentials = {
-            installed: {
-                client_id: '',
-                client_secret: '',
-                redirect_uris: []
-            }
-        }
+        const client = new SheetEnv({
+            credentials: {
+                installed: {
+                    client_id: '',
+                    client_secret: '',
+                    redirect_uris: []
+                }
+            },
+            config: dconfig
+        })
         expect(() => client.sync()).not.toThrow()
     })
 })
@@ -127,5 +161,43 @@ describe('manipulate data from google sheet', () => {
         }
         const rows = range2rows(copied, 3)
         expect(rows.length).toEqual(0)
+    })
+})
+
+describe('validate projects config', () => {
+
+    const configpath = join(__dirname, '.env.config.json')
+
+    afterEach(() => {
+        // Incase of some tests don't create .env
+        try {
+            unlinkSync(configpath)
+            // tslint:disable-next-line
+        } catch (e) { }
+    })
+
+    it('let module use config from a config file', () => {
+        writeFileSync(configpath, JSON.stringify({
+            projects: [
+                {
+                    dest: '',
+                    tab: '',
+                    column: 0
+                }
+            ],
+            sheetId: 'foo'
+        }))
+        const client = new SheetEnv({
+            credentials: {
+                installed: {
+                    client_id: 'xxx',
+                    client_secret: 'yyy',
+                    redirect_uris: ['localhost']
+                }
+            },
+            configPath: configpath
+        })
+        expect(() => client.init()).not.toThrow()
+        expect(() => client.validate()).not.toThrow()
     })
 })

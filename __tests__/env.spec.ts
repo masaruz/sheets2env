@@ -1,5 +1,5 @@
 import { createDotEnv, base64ToJson } from '../src/app/service'
-import { ISheetRow } from '../src/app/model'
+import { ISheetsRow } from '../src/app/model'
 import { join } from 'path'
 import { readFileSync, unlinkSync } from 'fs'
 
@@ -20,7 +20,7 @@ describe('create dot env', () => {
                 key: 'name',
                 value: 'stamp'
             }
-        ] as ISheetRow[], '')).rejects.toThrow()
+        ] as ISheetsRow[], '')).rejects.toThrow()
     })
 
     test('throw error when neither provide data nor dir', async () => {
@@ -33,7 +33,7 @@ describe('create dot env', () => {
                 key: 'name',
                 value: 'stamp'
             }
-        ] as ISheetRow[], '.')).rejects.toThrow()
+        ] as ISheetsRow[], '.')).rejects.toThrow()
     })
 
     test('key and value defined properly', async () => {
@@ -42,7 +42,7 @@ describe('create dot env', () => {
                 key: 'name',
                 value: 'stamp'
             }
-        ] as ISheetRow[], envpath)
+        ] as ISheetsRow[], envpath)
         const rawdata = readFileSync(envpath)
         const lines = rawdata.toString().split('\n')
         const data = lines[0].split('=')
@@ -60,7 +60,7 @@ describe('create dot env', () => {
             {
                 value: 'masaruz'
             }
-        ] as ISheetRow[], envpath)
+        ] as ISheetsRow[], envpath)
         const rawdata = readFileSync(envpath)
         const lines = rawdata.toString().split('\n')
         const data = lines[0].split('=')
@@ -79,7 +79,7 @@ describe('create dot env', () => {
                 key: 'name2',
                 value: 'masaruz'
             }
-        ] as ISheetRow[], envpath)
+        ] as ISheetsRow[], envpath)
         const rawdata = readFileSync(envpath)
         const lines = rawdata.toString().split('\n')
         const data1 = lines[0].split('=')

@@ -8,7 +8,8 @@ export const REDIRECT_URIS = [
     'http://localhost',
 ]
 
-export const CONFIG_PATH = join(homedir(), '.env-from-sheet')
-export const SHEET_CREDS_PATH = join(CONFIG_PATH, 'credentials')
+export const CONFIG_PATH = join(homedir(), '.sheets2env')
+export const SHEETS_CREDS_PATH = join(CONFIG_PATH, 'credentials')
 export const GOOGLE_TOKEN_PATH = join(CONFIG_PATH, 'google-token')
+export const SHEETS_CONFIG_PATH = 'sheets2env.config.json'
 

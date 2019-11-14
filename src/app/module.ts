@@ -3,67 +3,84 @@ import { readFileSync } from 'fs'
 import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
 import { has, isEmpty } from 'lodash'
-import { GOOGLE_TOKEN_PATH, REDIRECT_URIS, SHEET_CREDS_PATH } from './constant'
-import { IConfig, ICredentials, ISheetRange, IToken } from './model'
+import { GOOGLE_TOKEN_PATH, REDIRECT_URIS, SHEETS_CONFIG_PATH, SHEETS_CREDS_PATH } from './constant'
+import { IConfig, ICredentials, IModuleConfig, ISheetRange, IToken } from './model'
 import { createDotEnv, getNewToken, range2rows } from './service'
 
 export class SheetEnv {
     private _oAuth2Client: OAuth2Client
     private _config: IConfig
+    private _configPath: string
     private _token: IToken
+    private _tokenPath: string
     private _credentials: ICredentials
+    private _credentialsPath: string
 
     get credentials(): ICredentials {
         return this._credentials
     }
     /**
-     * @param credentials from google service account
-     */
-    set credentials(credentials: ICredentials) {
-        this._credentials = credentials
-    }
-    /**
      * Setup credentials 
      * @param config json file to define projects and sheet id
-     * @param token get from google authorization
      */
-    constructor(config: IConfig, token?: IToken) {
-        this._config = config
-        this._token = token
+    constructor(mconfig?: IModuleConfig) {
+        if (!isEmpty(mconfig)) {
+            this._config = mconfig.config
+            this._configPath = mconfig.configPath
+
+            this._credentials = mconfig.credentials
+            this._credentialsPath = mconfig.credentialsPath
+
+            this._token = mconfig.token
+            this._tokenPath = mconfig.tokenPath
+        }
     }
 
-    public validateCreds() {
-        if (!has(this.credentials, 'installed')) {
+    public validate() {
+        if (!has(this._credentials, 'installed')) {
             throw new Error('Credential missing installed')
         }
-        if (!has(this.credentials.installed, 'client_id')) {
+        if (!has(this._credentials.installed, 'client_id')) {
             throw new Error('Credential Installed missing client_id')
         }
-        if (!has(this.credentials.installed, 'client_secret')) {
+        if (!has(this._credentials.installed, 'client_secret')) {
             throw new Error('Credential Installed missing client_secret')
+        }
+        if (!has(this._config, 'sheetId') || isEmpty(this._config.sheetId)) {
+            throw new Error('SheetId must be specified')
+        }
+        if (!has(this._config, 'projects') || isEmpty(this._config.projects)) {
+            throw new Error('Project in config must be specified at least 1')
         }
     }
 
-    public initCredentials(): void {
+    public init(): void {
         // If never set credentials
-        if (isEmpty(this.credentials)) {
-            const creds = JSON.parse(readFileSync(SHEET_CREDS_PATH).toString())
-            this.credentials = creds
+        if (isEmpty(this._credentials)) {
+            const path = this._credentialsPath || SHEETS_CREDS_PATH
+            const creds = JSON.parse(readFileSync(path).toString())
+            this._credentials = creds
+        }
+        // If credential has no redirect uris
+        if (!has(this._credentials.installed, 'redirect_uris') ||
+            isEmpty(this._credentials.installed.redirect_uris)) {
+            // Overwrite it with default
+            this._credentials.installed.redirect_uris = REDIRECT_URIS
         }
         if (isEmpty(this._token)) {
             // Allow to be crash 
             // For asking user authentication
             try {
-                const token = JSON.parse(readFileSync(GOOGLE_TOKEN_PATH).toString())
+                const path = this._tokenPath || GOOGLE_TOKEN_PATH
+                const token = JSON.parse(readFileSync(path).toString())
                 this._token = token
                 // tslint:disable-next-line
             } catch (e) { }
         }
-        // If credential has no redirect uris
-        if (!has(this.credentials.installed, 'redirect_uris') ||
-            isEmpty(this.credentials.installed.redirect_uris)) {
-            // Overwrite it with default
-            this.credentials.installed.redirect_uris = REDIRECT_URIS
+        if (isEmpty(this._config)) {
+            const path = this._configPath || SHEETS_CONFIG_PATH
+            const config = JSON.parse(readFileSync(path).toString())
+            this._config = config
         }
     }
     /**
@@ -71,12 +88,12 @@ export class SheetEnv {
      * Then create file(s) from configuration
      */
     public async sync(): Promise<void> {
-        this.initCredentials()
-        this.validateCreds()
+        this.init()
+        this.validate()
         const {
             client_secret,
             client_id,
-            redirect_uris } = this.credentials.installed
+            redirect_uris } = this._credentials.installed
         this._oAuth2Client = new google.auth.OAuth2(
             client_id, client_secret, redirect_uris[0])
         // Use assigned token first if available

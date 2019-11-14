@@ -103,6 +103,9 @@ public/
 google.token
 secret.ts
 
+# config
+sheets2env.config.json
+
 # built files
 dist
 

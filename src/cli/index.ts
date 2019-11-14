@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, writeFileSync } from 'fs'
 import { prompt } from 'inquirer'
-import { CONFIG_PATH, SHEET_CREDS_PATH } from '../app/constant'
+import { CONFIG_PATH, SHEETS_CREDS_PATH } from '../app/constant'
 
 prompt([
     {
@@ -17,7 +17,7 @@ prompt([
     if (!existsSync(CONFIG_PATH)) {
         mkdirSync(CONFIG_PATH)
     }
-    writeFileSync(SHEET_CREDS_PATH, JSON.stringify({
+    writeFileSync(SHEETS_CREDS_PATH, JSON.stringify({
         installed: answers,
     }))
 })
