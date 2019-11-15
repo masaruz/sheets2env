@@ -5,13 +5,14 @@
 ```
 npm install --save-dev sheets2env
 ```
+
+#### With [yarn](https://yarnpkg.com)
+```
+yarn add -D sheets2env
+```
 ## Setup & Usage
 ```
-$ sheets2env init
-```
-##### Sync your sheet to ```your_project/.env```
-```
-$ sheets2env sync
+$ sheets2env
 ```
 ##### Or you can call in script
 ```js
@@ -45,8 +46,28 @@ SECRET_KEY | example | example | example
 You can find this config at ```your_project/sheets2env.config.json```
 ```js
 {
-    dest: 'path/to/.env',
-    tab: 'google_sheet_tabname',
-    column: 1 // 0 is key column
+    "projects": [
+        {
+            "column": 3,
+            "dest": "path/to/your/1/.env",
+            "tab": "project_1"
+        },
+        {
+            "column": 1,
+            "dest": "path/to/your/2/.env.development",
+            "tab": "project_2"
+        },
+        {
+            "column": 2,
+            "dest": "path/to/your/2/.env.uat",
+            "tab": "project_2"
+        },
+        {
+            "column": 3,
+            "dest": "path/to/your/2/.env",
+            "tab": "project_2"
+        }
+    ],
+    "sheetId": "your_sheets_id"
 }
 ```
