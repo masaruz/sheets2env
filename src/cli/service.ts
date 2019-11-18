@@ -222,11 +222,9 @@ export function getArgument(option: IArg): string {
  * Decode from process.env
  */
 export function base64ToJson(encoded: string): any {
-    let result
     try {
-        result = JSON.parse(Buffer.from(encoded, 'base64').toString())
+        return JSON.parse(Buffer.from(encoded, 'base64').toString())
     } catch (e) {
         throw new Error(`This value is not a JSON`)
     }
-    return result
 }
