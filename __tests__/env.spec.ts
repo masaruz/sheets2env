@@ -1,4 +1,5 @@
-import { createDotEnv, base64ToJson } from '../src/app/service'
+import { base64ToJson } from '../src/cli/service'
+import { createDotEnv } from '../src/app/service'
 import { ISheetsRow } from '../src/app/model'
 import { join } from 'path'
 import { readFileSync, unlinkSync } from 'fs'
@@ -98,13 +99,13 @@ describe('decod from env', () => {
     })
 
     test('return object when value found', () => {
-        process.env['KEY'] = 'eyJuYW1lIjoic3RhbXAifQ==' // {"name":"stamp"}
-        const obj = base64ToJson('KEY')
+        // {"name":"stamp"}
+        const obj = base64ToJson('eyJuYW1lIjoic3RhbXAifQ==')
         expect(obj.name).toBe('stamp')
     })
 
     test('throw errro when value is not an object', () => {
-        process.env['KEY'] = 'aGVsbG8=' // hello
-        expect(() => base64ToJson('KEY')).toThrow()
+        // hello
+        expect(() => base64ToJson('aGVsbG8=')).toThrow()
     })
 })

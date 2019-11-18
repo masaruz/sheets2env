@@ -4,7 +4,7 @@ import { OAuth2Client } from 'google-auth-library'
 import { isEmpty, reduce } from 'lodash'
 import { createInterface } from 'readline'
 import { GOOGLE_TOKEN_PATH, SCOPE } from './constant'
-import { IArg, ISheetRange, ISheetsRow } from './model'
+import { ISheetRange, ISheetsRow } from './model'
 
 /**
  * Get and store new token after prompting for user authorization, and then
@@ -59,39 +59,6 @@ export async function createDotEnv(data: ISheetsRow[], directory: string): Promi
         throw e
     }
 }
-
-/**
- * Get argument from command line after script
- * @param {string} option (-p --project | --credentails)
- */
-export function getArgument(option: IArg): string {
-    const index = process.argv.indexOf(option.flag)
-    if (index === -1) {
-        // tslint:disable-next-line
-        console.log(yellow(`Warning! ${option.flag} << ${option.name} >> option is missing, will use default value instead.`))
-        return ``
-    }
-
-    return process.argv[index + 1]
-}
-
-/**
- * Decode from process.env
- */
-export function base64ToJson(key: string): any {
-    const encoded = process.env[key]
-    if (!encoded) {
-        throw new Error(`Please define ${key} in .env`)
-    }
-    let result
-    try {
-        result = JSON.parse(Buffer.from(encoded, 'base64').toString())
-    } catch (e) {
-        throw new Error(`This value is not a JSON`)
-    }
-    return result
-}
-
 
 export function range2rows(range: ISheetRange, column: number): ISheetsRow[] {
     return reduce(range.values, (rows, row) => {

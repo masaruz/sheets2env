@@ -14,6 +14,10 @@ yarn add -D sheets2env
 ```
 $ sheets2env
 ```
+## For CI
+```
+$ sheets2env -p your_config_path -c your_google_credentials -t your_authorized_token
+```
 ##### Or you can call in script
 ```js
 import { SheetsEnv } from 'sheets2env'
