@@ -15,12 +15,17 @@ import {
     EXIT,
     SYNC_PROJECTS,
 } from './constant'
+import { ISyncConfigCI } from './model'
 import {
     createGoogleCredentials,
     createProjectConfigs,
     editProjectConfigs,
 } from './service'
-import { sync } from './sync'
+import { sync, syncCI } from './sync'
+
+export async function configCI(syncConfigCI: ISyncConfigCI): Promise<void> {
+    await syncCI(syncConfigCI)
+}
 
 export async function config(): Promise<void> {
     const choices = [

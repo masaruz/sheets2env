@@ -25,11 +25,6 @@ export interface ISheetsRow {
     value: string
 }
 
-export interface IArg {
-    flag: string
-    name: string
-}
-
 export interface IConfig {
     projects: IProject[]
     sheetId: string

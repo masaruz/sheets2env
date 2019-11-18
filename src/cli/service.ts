@@ -3,8 +3,23 @@ import { readFileSync, writeFileSync } from 'fs'
 import { prompt } from 'inquirer'
 import { filter, findIndex, map } from 'lodash'
 import { IConfig, IProject } from '../app/model'
-import { ADD_PROJECT, DELETE_PROJECT, DONE, EDIT_COLUMN, EDIT_DEST_PATH, EDIT_PROJECTS, EDIT_SHEETS_ID, EDIT_TAB } from './constant'
-import { QUESTION_COLUMN, QUESTION_DEST_NAME, QUESTION_SHEETS_ID, QUESTION_TAB } from './question'
+import {
+    ADD_PROJECT,
+    DELETE_PROJECT,
+    DONE,
+    EDIT_COLUMN,
+    EDIT_DEST_PATH,
+    EDIT_PROJECTS,
+    EDIT_SHEETS_ID,
+    EDIT_TAB,
+} from './constant'
+import { IArg } from './model'
+import {
+    QUESTION_COLUMN,
+    QUESTION_DEST_NAME,
+    QUESTION_SHEETS_ID,
+    QUESTION_TAB,
+} from './question'
 
 /**
  * Use native file system to write in synchronous
@@ -188,4 +203,30 @@ export async function editProject(choice: string, current: IProject): Promise<IP
             break
     }
     return project
+}
+/**
+ * Get argument from command line after script
+ * @param {string} option (-p --project | --credentails)
+ */
+export function getArgument(option: IArg): string {
+    const index = process.argv.indexOf(option.flag)
+    if (index === -1) {
+        // tslint:disable-next-line
+        console.log(yellow(`Warning! ${option.flag} << ${option.name} >> option is missing, will use default value instead.`))
+        return ``
+    }
+
+    return process.argv[index + 1]
+}
+/**
+ * Decode from process.env
+ */
+export function base64ToJson(encoded: string): any {
+    let result
+    try {
+        result = JSON.parse(Buffer.from(encoded, 'base64').toString())
+    } catch (e) {
+        throw new Error(`This value is not a JSON`)
+    }
+    return result
 }
