@@ -11,14 +11,15 @@ npm install --save-dev sheets2env
 yarn add -D sheets2env
 ```
 ## Setup & Usage
+#### CLI
 ```
 $ sheets2env
 ```
-## For CI
+#### CI
 ```
 $ sheets2env -p your_config_path -c your_google_credentials -t your_authorized_token
 ```
-##### Or you can call in script
+#### Script
 ```js
 import { SheetsEnv } from 'sheets2env'
 
