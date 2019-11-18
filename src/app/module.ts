@@ -4,8 +4,8 @@ import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
 import { has, isEmpty } from 'lodash'
 import { GOOGLE_TOKEN_PATH, REDIRECT_URIS, SHEETS_CONFIG_PATH, SHEETS_CREDS_PATH } from './constant'
-import { IConfig, ICredentials, IModuleConfig, ISheetRange, IToken } from './model'
-import { createDotEnv, getNewToken, range2rows } from './service'
+import { IConfig, ICredentials, IModuleConfig, IProject, ISheetRange, IToken } from './model'
+import { createDotEnv, find2remove, getNewToken, range2rows } from './service'
 
 export class SheetsEnv {
     private _oAuth2Client: OAuth2Client
@@ -133,11 +133,13 @@ export class SheetsEnv {
             // tslint:disable-next-line
             throw new Error('No data found.')
         }
+        let cloned: IProject[] = [...this._config.projects]
+        let pconfig: IProject
         data.forEach(range => {
             // project's name ex. backend, scoreup, scoreup-people
-            const project = range.range.split(`!`)[0].replace(/\'/g, '')
             // project's configuration from config file
-            const pconfig = this._config.projects.find(p => p.tab === project)
+            [cloned, pconfig] = find2remove(cloned,
+                range.range.split(`!`)[0].replace(/\'/g, ''))
             const rows = range2rows(range as ISheetRange, pconfig.column)
             createDotEnv(rows, pconfig.dest)
         })

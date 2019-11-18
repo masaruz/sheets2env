@@ -1,10 +1,10 @@
 import { green, red, yellow } from 'colors'
 import { writeFileSync } from 'fs'
 import { OAuth2Client } from 'google-auth-library'
-import { isEmpty, reduce } from 'lodash'
+import { find, isEmpty, reduce, without } from 'lodash'
 import { createInterface } from 'readline'
 import { GOOGLE_TOKEN_PATH, SCOPE } from './constant'
-import { ISheetRange, ISheetsRow } from './model'
+import { IProject, ISheetRange, ISheetsRow } from './model'
 
 /**
  * Get and store new token after prompting for user authorization, and then
@@ -72,4 +72,9 @@ export function range2rows(range: ISheetRange, column: number): ISheetsRow[] {
         }
         return rows.concat([{ key, value }])
     }, [])
+}
+
+export function find2remove(projects: IProject[], tab: string): [IProject[], IProject] {
+    const found = find(projects, { tab })
+    return [without(projects, found), found]
 }
