@@ -17,7 +17,10 @@ $ sheets2env
 ```
 #### CI
 ```
-$ sheets2env -p your_config_path -c your_google_credentials -t your_authorized_token
+$ sheets2env 
+-p config_path 
+-c base64_google_credentials 
+-t base64_authorized_token
 ```
 #### Script
 ```js
